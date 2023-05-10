@@ -10,7 +10,7 @@ namespace space__shooter_local
     internal class Enemy : GameObject                                                                                               
     {
 
-        public Enemy(int x, int y, ConsoleColor color, char symbol) : base(x, y, ConsoleColor.Red, 'V')
+        public Enemy(int x, int y) : base(x, y, ConsoleColor.Red, 'V')
         {
         }
 

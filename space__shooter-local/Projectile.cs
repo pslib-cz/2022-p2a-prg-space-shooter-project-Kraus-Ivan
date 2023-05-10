@@ -9,7 +9,7 @@ namespace space__shooter_local
 {
     internal class Projectile : GameObject
     {
-        public Projectile(int x, int y, ConsoleColor color, char symbol) : base(x, y, ConsoleColor.Yellow, '|')
+        public Projectile(int x, int y) : base(x, y, ConsoleColor.Yellow, '|')
         {
         }
 

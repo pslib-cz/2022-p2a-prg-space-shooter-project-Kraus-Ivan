@@ -28,8 +28,10 @@ namespace space_shooter
 
         public Game()
         {
+            Input = new Input();
             LoadHighScore();
             Reset();
+            Meteors = new List<Meteor>();
         }
 
         public void Reset()
@@ -68,7 +70,7 @@ namespace space_shooter
             }
         }
 
-        public void RemoveEvenmy(Enemy enemy)
+        public void RemoveEnemy(Enemy enemy)
         {
             Enemies.Remove(enemy);
         }
@@ -92,9 +94,83 @@ namespace space_shooter
             File.WriteAllText("highscore.txt", HighScore.ToString());
         }
 
+        public void RemoveProjectile(Projectile projectile)
+        {
+            Projectiles.Remove(projectile);
+        }
+
+        public void GameOver() 
+        {
+            Console.Clear();
+            Console.WriteLine("Game Over");
+            Console.WriteLine("Score: " + Score);
+            Console.WriteLine("High Score: " + HighScore);
+            Environment.Exit(0);
+        }
+
+        
+        public void LoadHighScore()
+        {
+            if (File.Exists("highscore.txt"))
+            {
+                string highScoreText = File.ReadAllText("highscore.txt");
+                if(int.TryParse(highScoreText, out int loadedHighScore))
+                {
+                    HighScore = loadedHighScore;
+                }
+            }
+        }
+
         public void Update()
         {
+            _tickCounter++;
+            Player.Update(this);
+
+            if (Input.IsMoveLeftPressed())
+                Player.MoveLeft();
+
+            if(Input.IsMoveRightPressed())
+                Player.MoveRight();
+
+            if (Input.IsMoveUpPressed())
+                Player.MoveUp();
+
+            if (Input.IsMoveDownPressed())
+                Player.MoveDown();
             
+            if(_tickCounter % 50 == 0)
+            {
+                SpawnEnemies();
+                SpawnMeteors();
+            }
+
+            foreach (var enemy in Enemies)
+            {
+                enemy.Update(this);
+            }
+
+            foreach (var projectile in Projectiles)
+            {
+                projectile.Update(this);
+            }
+
+            foreach (var meteor in Meteors)
+            {
+                meteor.Update(this);
+            }
+
+            // Odstraní nepřátele a meteority, kteří byli zasaženi střelou nebo se nachází mimo obrazovku
+            Enemies.RemoveAll(e => Projectiles.Any(p => p.CollidesWith(e) || e.Y >= Console.WindowHeight));
+            Meteors.RemoveAll(m => Projectiles.Any(p => p.CollidesWith(m) || m.Y >= Console.WindowHeight));
+
+            // Odstraní projektily mimo obrazovku
+            Projectiles.RemoveAll(p => p.Y <= 0);
+
+            // Přidá 100 skóre za zničení nepřítele
+            IncreaseScore(Enemies.Count(e => Projectiles.Any(p => p.CollidesWith(e))) * 100);
+
+            // Přidá 25 skóre za zničení meteoritu
+            IncreaseScore(Meteors.Count(m => Projectiles.Any(p => p.CollidesWith(m))) * 25);
         }
 
     }

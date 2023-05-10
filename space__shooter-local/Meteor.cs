@@ -9,7 +9,7 @@ namespace space__shooter_local
 {
     internal class Meteor : GameObject
     {
-        public Meteor(int x, int y, ConsoleColor color, char symbol) : base(x, y, ConsoleColor.DarkYellow, 'O')
+        public Meteor(int x, int y) : base(x, y, ConsoleColor.DarkYellow, 'O')
         {
         }
 
