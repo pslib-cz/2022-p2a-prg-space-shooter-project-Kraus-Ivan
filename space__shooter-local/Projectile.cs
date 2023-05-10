@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace space_shooter
+namespace space__shooter_local
 {
-    internal class Render
+    internal class Projectile
     {
-
     }
 }

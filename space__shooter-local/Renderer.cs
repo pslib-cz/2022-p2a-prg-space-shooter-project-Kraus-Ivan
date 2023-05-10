@@ -8,12 +8,8 @@ using System.Threading.Tasks;
 
 namespace space_shooter
 {
-    internal class Game
+    internal class Renderer
     {
-        public Player Player { get; private set; }
-        public List<Enemy> Enemies { get; private set; }
-        
-        
 
     }
 }
