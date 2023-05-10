@@ -34,6 +34,48 @@ namespace space_shooter
             Meteors = new List<Meteor>();
         }
 
+        public void Update()
+        {
+            _tickCounter++;
+            Player.Update(this);
+
+
+            if (_tickCounter % 50 == 0)
+            {
+                SpawnEnemies();
+                SpawnMeteors();
+            }
+
+            foreach (var enemy in Enemies)
+            {
+                enemy.Update(this);
+            }
+
+            foreach (var projectile in Projectiles)
+            {
+                projectile.Update(this);
+            }
+
+            foreach (var meteor in Meteors)
+            {
+                meteor.Update(this);
+            }
+
+            // Odstraní nepřátele a meteority, kteří byli zasaženi střelou nebo se nachází mimo obrazovku
+            Enemies.RemoveAll(e => Projectiles.Any(p => p.CollidesWith(e)) || e.Y >= Console.WindowHeight);
+
+            Meteors.RemoveAll(m => Projectiles.Any(p => p.CollidesWith(m)) || m.Y >= Console.WindowHeight);
+
+            // Odstraní projektily mimo obrazovku
+            Projectiles.RemoveAll(p => p.Y < 0);
+
+            // Přidá 100 skóre za zničení nepřítele
+            IncreaseScore(Enemies.Count(e => Projectiles.Any(p => p.CollidesWith(e))) * 100);
+
+            // Přidá 25 skóre za zničení meteoritu
+            IncreaseScore(Meteors.Count(m => Projectiles.Any(p => p.CollidesWith(m))) * 25);
+        }
+
         public void Reset()
         {
             Player = new Player(Console.WindowWidth / 2, Console.WindowHeight - 1);
@@ -121,57 +163,6 @@ namespace space_shooter
             }
         }
 
-        public void Update()
-        {
-            _tickCounter++;
-            Player.Update(this);
-
-            if (Input.IsMoveLeftPressed())
-                Player.MoveLeft();
-
-            if(Input.IsMoveRightPressed())
-                Player.MoveRight();
-
-            if (Input.IsMoveUpPressed())
-                Player.MoveUp();
-
-            if (Input.IsMoveDownPressed())
-                Player.MoveDown();
-            
-            if(_tickCounter % 50 == 0)
-            {
-                SpawnEnemies();
-                SpawnMeteors();
-            }
-
-            foreach (var enemy in Enemies)
-            {
-                enemy.Update(this);
-            }
-
-            foreach (var projectile in Projectiles)
-            {
-                projectile.Update(this);
-            }
-
-            foreach (var meteor in Meteors)
-            {
-                meteor.Update(this);
-            }
-
-            // Odstraní nepřátele a meteority, kteří byli zasaženi střelou nebo se nachází mimo obrazovku
-            Enemies.RemoveAll(e => Projectiles.Any(p => p.CollidesWith(e) || e.Y >= Console.WindowHeight));
-            Meteors.RemoveAll(m => Projectiles.Any(p => p.CollidesWith(m) || m.Y >= Console.WindowHeight));
-
-            // Odstraní projektily mimo obrazovku
-            Projectiles.RemoveAll(p => p.Y <= 0);
-
-            // Přidá 100 skóre za zničení nepřítele
-            IncreaseScore(Enemies.Count(e => Projectiles.Any(p => p.CollidesWith(e))) * 100);
-
-            // Přidá 25 skóre za zničení meteoritu
-            IncreaseScore(Meteors.Count(m => Projectiles.Any(p => p.CollidesWith(m))) * 25);
-        }
 
     }
 }

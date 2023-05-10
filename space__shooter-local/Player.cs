@@ -23,7 +23,7 @@ namespace space_shooter
         {
         }
 
-        private void Shoot(Game game)
+        public void Shoot(Game game)
         {
             game.Projectiles.Add(new Projectile(X, Y - 1));
         }
