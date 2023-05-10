@@ -18,7 +18,7 @@ namespace space_shooter
             }
         }
         
-        public Player(int x, int y, ConsoleColor color, char symbol) : base(x, y, ConsoleColor.Green, 'A')
+        public Player(int x, int y) : base(x, y, ConsoleColor.Green, 'A')
         {
         }
 
