@@ -13,10 +13,6 @@ namespace space_shooter
     {
         public override void Update(Game game)
         {
-            if (game.Input.IsFirePressed())
-            {
-                Shoot(game);
-            }
         }
         
         public Player(int x, int y) : base(x, y, ConsoleColor.Green, 'A')

@@ -16,26 +16,26 @@ namespace space_shooter
         
         public List<Projectile> Projectiles { get; private set; }
 
-        public Input Input { get; private set; }
 
         public List<Meteor> Meteors { get; private set; }
 
         public int Score { get; private set; }
 
         public int HighScore { get; private set; }
-
+ 
         private int _tickCounter;
 
         public Game()
         {
-            Input = new Input();
-            LoadHighScore();
             Reset();
+            LoadHighScore();
             Meteors = new List<Meteor>();
         }
 
+
         public void Update()
         {
+            IncreaseScore(1);
             _tickCounter++;
             Player.Update(this);
 
@@ -46,17 +46,17 @@ namespace space_shooter
                 SpawnMeteors();
             }
 
-            foreach (var enemy in Enemies)
-            {
+            foreach (var enemy in Enemies.ToList())
+             {
                 enemy.Update(this);
             }
 
-            foreach (var projectile in Projectiles)
+            foreach (var projectile in Projectiles.ToList())
             {
                 projectile.Update(this);
             }
 
-            foreach (var meteor in Meteors)
+            foreach (var meteor in Meteors.ToList())
             {
                 meteor.Update(this);
             }

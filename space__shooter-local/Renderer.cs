@@ -22,17 +22,17 @@ namespace space_shooter
 
             DrawScore(game.Score, game.HighScore);
 
-            foreach (var enemy in game.Enemies)
+            foreach (var enemy in game.Enemies.ToList())
             {
                 DrawGameObject(enemy);
             }
 
-            foreach (var projectile in game.Projectiles)
+            foreach (var projectile in game.Projectiles.ToList())
             {
                 DrawGameObject(projectile);
             }
 
-            foreach (var meteor in game.Meteors)
+            foreach (var meteor in game.Meteors.ToList())
             {
                 DrawGameObject(meteor);
             }
