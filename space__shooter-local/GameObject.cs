@@ -10,13 +10,14 @@ namespace space_shooter
 {
     internal abstract class GameObject
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Speed { get; set; } = 0.2;
 
         public ConsoleColor color { get; set; }
         public char Symbol { get; set; } // Symbol představující enemy
 
-        public GameObject(int x, int y, ConsoleColor color, char symbol)
+        public GameObject(double x, double y, ConsoleColor color, char symbol)
         {
             X = x;
             Y = y;

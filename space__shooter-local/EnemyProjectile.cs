@@ -7,34 +7,29 @@ using System.Threading.Tasks;
 
 namespace space__shooter_local
 {
-    internal class Projectile : GameObject
+    internal class EnemyProjectile : Projectile
     {
-        public Projectile(double x, double y, ConsoleColor color, char symbol) : base(x, y, color, symbol)
+ 
+        public EnemyProjectile(double x, double y) : base(x, y, ConsoleColor.Red, '.')
         {
         }
-
 
         public override void Update(Game game)
         {
             // pohyb dolů
-            Y -= 1;
+            Y += 2;
 
             // pokud se projektil dotkne hráče, tak se hra ukončí
             if (CollidesWith(game.Player))
             {
                 game.GameOver();
             }
-
-            // pokud projektil zasáhne enemy, tak se enemy zničí
-            foreach (var enemy in game.Enemies)
+            // pokud je projektil mimo obrazovku, odstraní ho
+            else if (Y >= Console.WindowHeight)
             {
-                if (CollidesWith(enemy))
-                {
-                    game.RemoveEnemy(enemy);
-                    game.RemoveProjectile(this);
-                    break;
-                }
+                game.RemoveEnemyProjectile(this);
             }
         }
+
     }
 }

@@ -13,16 +13,17 @@ namespace space_shooter
     {
         public Player Player { get; private set; }
         public List<Enemy> Enemies { get; private set; }
-        
+
         public List<Projectile> Projectiles { get; private set; }
 
+        public List<EnemyProjectile> EnemyProjectiles { get; private set; }
 
         public List<Meteor> Meteors { get; private set; }
 
-        public int Score { get; private set; }
+        public double Score { get; private set; }
 
-        public int HighScore { get; private set; }
- 
+        public double HighScore { get; private set; }
+
         private int _tickCounter;
 
         public Game()
@@ -32,28 +33,23 @@ namespace space_shooter
             Meteors = new List<Meteor>();
         }
 
-
         public void Update()
         {
-            IncreaseScore(1);
-            _tickCounter++;
-            Player.Update(this);
-
-
-            if (_tickCounter % 50 == 0)
-            {
-                SpawnEnemies();
-                SpawnMeteors();
-            }
-
-            foreach (var enemy in Enemies.ToList())
-             {
-                enemy.Update(this);
-            }
-
+            IncreaseScore(0.5);
             foreach (var projectile in Projectiles.ToList())
             {
                 projectile.Update(this);
+            }
+
+            foreach (var enemyProjectile in EnemyProjectiles.ToList())
+            {
+                enemyProjectile.Update(this);
+            }
+
+
+            foreach (var enemy in Enemies.ToList())
+            {
+                enemy.Update(this);
             }
 
             foreach (var meteor in Meteors.ToList())
@@ -61,19 +57,43 @@ namespace space_shooter
                 meteor.Update(this);
             }
 
-            // Odstraní nepřátele a meteority, kteří byli zasaženi střelou nebo se nachází mimo obrazovku
-            Enemies.RemoveAll(e => Projectiles.Any(p => p.CollidesWith(e)) || e.Y >= Console.WindowHeight);
+            if (_tickCounter % 20 == 0)
+            {
+                SpawnEnemy();
+                SpawnMeteor();
+            }
 
-            Meteors.RemoveAll(m => Projectiles.Any(p => p.CollidesWith(m)) || m.Y >= Console.WindowHeight);
 
-            // Odstraní projektily mimo obrazovku
-            Projectiles.RemoveAll(p => p.Y < 0);
+            foreach (var meteor in Meteors.ToList())
+            {
+                meteor.Update(this);
+                meteor.RemoveOffScreenParts();
+            }
+
+
+            EnemyProjectiles.RemoveAll(p => p.Y >= Console.WindowHeight);
+            Projectiles.RemoveAll(p => p.Y < 0 || p.Y >= Console.WindowHeight);
 
             // Přidá 100 skóre za zničení nepřítele
             IncreaseScore(Enemies.Count(e => Projectiles.Any(p => p.CollidesWith(e))) * 100);
 
             // Přidá 25 skóre za zničení meteoritu
             IncreaseScore(Meteors.Count(m => Projectiles.Any(p => p.CollidesWith(m))) * 25);
+
+            // Odstraní nepřátele a meteority, kteří byli zasaženi střelou nebo se nachází mimo obrazovku
+            Enemies.RemoveAll(e => Projectiles.Any(p => p.CollidesWith(e)) || e.Y >= Console.WindowHeight);
+
+            Meteors.RemoveAll(m => Projectiles.Any(p => p.CollidesWith(m)) || m.Y >= Console.WindowHeight);
+
+            /*double speedIncrease = Score / 1000; // rychlost se zvýší o 1 každých 1000 bodů
+            foreach (var enemy in Enemies.ToList())
+            {
+                enemy.Speed += speedIncrease;
+                enemy.Update(this);
+            }*/
+
+            _tickCounter++;
+            Player.Update(this);
         }
 
         public void Reset()
@@ -81,6 +101,7 @@ namespace space_shooter
             Player = new Player(Console.WindowWidth / 2, Console.WindowHeight - 1);
             Enemies = new List<Enemy>();
             Projectiles = new List<Projectile>();
+            EnemyProjectiles = new List<EnemyProjectile>();
             Meteors = new List<Meteor>();
             Score = 0;
             _tickCounter = 0;
@@ -89,27 +110,23 @@ namespace space_shooter
 
         private void InitializeGameObjects()
         {
-            SpawnEnemies();
-            SpawnMeteors();
+            SpawnEnemy();
+            SpawnMeteor();
         }
 
-        public void SpawnEnemies()
+        public void SpawnEnemy()
         {
-            int enemyCount = new Random().Next(1, 5);
-            for (int i = 0; i < enemyCount; i++)
-            {
-                int x = new Random().Next(0, Console.WindowWidth);
-                Enemies.Add(new Enemy(x, 0));
-            }
+            int x = new Random().Next(0, Console.WindowWidth);
+            Enemies.Add(new Enemy(x, 0));
         }
-        public void SpawnMeteors()
+        public void SpawnMeteor()
         {
-            int meteorCount = new Random().Next(1, 5);
-            for (int i = 0; i < meteorCount; i++)
-            {
-                int x = new Random().Next(0, Console.WindowWidth);
-                Meteors.Add(new Meteor(x, 0));
-            }
+            Random rand = new Random();
+            int x = rand.Next(1, Console.WindowWidth - 1);
+            int y = rand.Next(10, Console.WindowHeight - 1);
+            int size = rand.Next(1, 4);
+            Meteor meteor = new Meteor(x, y, size);
+            Meteors.Add(meteor);
         }
 
         public void RemoveEnemy(Enemy enemy)
@@ -121,10 +138,10 @@ namespace space_shooter
             Meteors.Remove(meteor);
         }
 
-        public void IncreaseScore(int value)
+        public void IncreaseScore(double value)
         {
             Score += value;
-            if(Score > HighScore)
+            if (Score > HighScore)
             {
                 HighScore = Score;
                 SaveHighScore();
@@ -139,6 +156,11 @@ namespace space_shooter
         public void RemoveProjectile(Projectile projectile)
         {
             Projectiles.Remove(projectile);
+        }
+
+        public void RemoveEnemyProjectile(EnemyProjectile projectile)
+        {
+            EnemyProjectiles.Remove(projectile);
         }
 
         public void GameOver() 
@@ -156,7 +178,7 @@ namespace space_shooter
             if (File.Exists("highscore.txt"))
             {
                 string highScoreText = File.ReadAllText("highscore.txt");
-                if(int.TryParse(highScoreText, out int loadedHighScore))
+                if(double.TryParse(highScoreText, out double loadedHighScore))
                 {
                     HighScore = loadedHighScore;
                 }

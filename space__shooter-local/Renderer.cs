@@ -1,4 +1,5 @@
-﻿using System;
+﻿using space__shooter_local;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,16 +35,17 @@ namespace space_shooter
 
             foreach (var meteor in game.Meteors.ToList())
             {
-                DrawGameObject(meteor);
+                DrawMeteorParts(meteor.Parts);
             }
         }
+
 
         /// <summary>
         /// Vykreslí skóre na obrazovku
         /// </summary>
         /// <param name="score">Aktuální skóre</param>
         /// <param name="highScore">Nejvyšší dosažené skóre</param>
-        private void DrawScore(int score, int highScore)
+        private void DrawScore(double score, double highScore)
         {
             Console.SetCursorPosition(0, 0);
             Console.ForegroundColor = ConsoleColor.White;
@@ -58,10 +60,26 @@ namespace space_shooter
         /// <param name="gameObject">Objekt k vykreslení</param>
         private void DrawGameObject(GameObject gameObject)
         {
-            Console.SetCursorPosition(gameObject.X, gameObject.Y);
-            Console.ForegroundColor = gameObject.color;
-            Console.Write(gameObject.Symbol);
-            Console.ResetColor();
+            if (gameObject.X >= 0 && gameObject.Y >= 0 && gameObject.X < Console.WindowWidth && gameObject.Y < Console.WindowHeight)
+            {
+                Console.SetCursorPosition((int)gameObject.X, (int)gameObject.Y);
+                Console.ForegroundColor = gameObject.color;
+                Console.Write(gameObject.Symbol);
+                Console.ResetColor();
+            }
         }
+
+        public void DrawMeteorParts(IEnumerable<MeteorPart> parts)
+        {
+            foreach (var part in parts)
+            {
+                if (part.X >= 0 && part.Y >= 0 && part.X < Console.WindowWidth && part.Y < Console.WindowHeight)
+                {
+                    DrawGameObject(part);
+                }
+            }
+        }
+
+
     }
 }

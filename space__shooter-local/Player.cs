@@ -15,13 +15,13 @@ namespace space_shooter
         {
         }
         
-        public Player(int x, int y) : base(x, y, ConsoleColor.Green, 'A')
+        public Player(double x, double y) : base(x, y, ConsoleColor.Green, 'A')
         {
         }
 
         public void Shoot(Game game)
         {
-            game.Projectiles.Add(new Projectile(X, Y - 1));
+            game.Projectiles.Add(new Projectile(X, Y - 1, ConsoleColor.White, '.'));
         }
 
         public void MoveLeft()
