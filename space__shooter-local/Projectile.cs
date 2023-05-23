@@ -25,16 +25,6 @@ namespace space__shooter_local
                 game.GameOver();
             }
 
-            // pokud projektil zasáhne enemy, tak se enemy zničí
-            foreach (var enemy in game.Enemies)
-            {
-                if (CollidesWith(enemy))
-                {
-                    game.RemoveEnemy(enemy);
-                    game.RemoveProjectile(this);
-                    break;
-                }
-            }
         }
     }
 }

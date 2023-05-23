@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 namespace space__shooter_local
 {
     internal class MeteorPart : GameObject
-    {   
+    {
+        private int updateCounter = 0;
+
         public MeteorPart(double x, double y) : base(x, y, ConsoleColor.DarkYellow, 'O')
         {
         }
 
         public override void Update(Game game)
         {
-            // pohyb dolů
-            Y += Speed;
         }
     }
 }

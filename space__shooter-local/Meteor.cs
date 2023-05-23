@@ -10,6 +10,7 @@ namespace space__shooter_local
     internal class Meteor : GameObject
     {
         private List<MeteorPart> parts = new List<MeteorPart>();
+        private int updateCounter = 0;
 
         public Meteor(double x, double y, int size) : base(x, y, ConsoleColor.DarkYellow, 'O')
         {
@@ -28,11 +29,18 @@ namespace space__shooter_local
 
         public override void Update(Game game)
         {
+            updateCounter++;
+            if (updateCounter % slowDown == 0) 
+            {
+                Y += Speed;
+            }
             // pohyb dolů
-            Y += Speed;
             foreach (var part in parts)
             {
-                part.Y+= Speed;
+                if (updateCounter % slowDown == 0)
+                {
+                    part.Y += Speed;
+                }
                 if (part.CollidesWith(game.Player))
                 {
                     game.GameOver();

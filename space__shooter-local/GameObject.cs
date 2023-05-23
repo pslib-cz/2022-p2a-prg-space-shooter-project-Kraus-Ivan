@@ -12,7 +12,8 @@ namespace space_shooter
     {
         public double X { get; set; }
         public double Y { get; set; }
-        public double Speed { get; set; } = 0.2;
+        public double Speed { get; set; } = 1;
+        public double slowDown { get; set; } = 3;
 
         public ConsoleColor color { get; set; }
         public char Symbol { get; set; } // Symbol představující enemy

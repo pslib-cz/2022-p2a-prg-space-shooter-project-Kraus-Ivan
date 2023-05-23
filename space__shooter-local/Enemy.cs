@@ -10,6 +10,8 @@ namespace space__shooter_local
     internal class Enemy : GameObject                                                                                               
     {
         int delay = 0;
+        private int updateCounter = 0;
+
         public Enemy(double x, double y) : base(x, y, ConsoleColor.Red, 'V')
         {
         }
@@ -26,8 +28,12 @@ namespace space__shooter_local
                 this.Shoot(game);
             }
 
+            updateCounter++;
+            if (updateCounter % slowDown == 0) // pohybuje se pouze při každé páté aktualizaci
+            {
+                Y += Speed;
+            }
             // pohyb dolů
-            Y += Speed;
 
             // pokud se enemy dotkne hráče, tak se hra ukončí
             if (CollidesWith(game.Player))

@@ -9,15 +9,20 @@ namespace space__shooter_local
 {
     internal class EnemyProjectile : Projectile
     {
- 
+        private int updateCounter = 0;
+
         public EnemyProjectile(double x, double y) : base(x, y, ConsoleColor.Red, '.')
         {
         }
 
         public override void Update(Game game)
         {
+            updateCounter++;
+            if (updateCounter % slowDown == 0) // pohybuje se pouze při každé páté aktualizaci
+            {
+                Y += 2;
+            }
             // pohyb dolů
-            Y += 2;
 
             // pokud se projektil dotkne hráče, tak se hra ukončí
             if (CollidesWith(game.Player))

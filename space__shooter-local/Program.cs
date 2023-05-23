@@ -53,7 +53,7 @@ class Program
             game.Update();
             renderer.Render(game);
 
-            await Task.Delay(10);
+            await Task.Delay(100);
         }
     }
 
