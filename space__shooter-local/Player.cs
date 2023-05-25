@@ -11,10 +11,20 @@ namespace space_shooter
 {
     internal class Player : GameObject
     {
+        public int lives = 3;
         public override void Update(Game game)
         {
         }
-        
+
+        public void Hit(Game game)
+        {
+            lives -= 1;
+            if (lives <= 0)
+            {
+                game.GameOver();
+            }
+        }
+
         public Player(double x, double y) : base(x, y, ConsoleColor.Green, 'A')
         {
         }

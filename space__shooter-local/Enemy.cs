@@ -28,6 +28,12 @@ namespace space__shooter_local
                 this.Shoot(game);
             }
 
+            if (CollidesWith(game.Player))
+            {
+                game.Player.Hit(game);
+                game.RemoveEnemy(this);
+            }
+
             updateCounter++;
             if (updateCounter % slowDown == 0) // pohybuje se pouze při každé páté aktualizaci
             {

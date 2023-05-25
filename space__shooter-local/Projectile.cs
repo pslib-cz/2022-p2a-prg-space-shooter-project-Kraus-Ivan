@@ -17,14 +17,23 @@ namespace space__shooter_local
         public override void Update(Game game)
         {
             // pohyb dolů
-            Y -= 1;
+            Y -= 2;
 
-            // pokud se projektil dotkne hráče, tak se hra ukončí
             if (CollidesWith(game.Player))
             {
                 game.GameOver();
             }
 
+            foreach (var meteor in game.Meteors)
+            {
+                var hitPart = meteor.Parts.FirstOrDefault(part => CollidesWith(part));
+                if (hitPart != null)
+                {
+                    meteor.parts.Remove(hitPart);
+                    break;
+                }
+            }
         }
+
     }
 }

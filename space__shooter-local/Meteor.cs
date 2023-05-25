@@ -9,7 +9,7 @@ namespace space__shooter_local
 {
     internal class Meteor : GameObject
     {
-        private List<MeteorPart> parts = new List<MeteorPart>();
+        public List<MeteorPart> parts = new List<MeteorPart>();
         private int updateCounter = 0;
 
         public Meteor(double x, double y, int size) : base(x, y, ConsoleColor.DarkYellow, 'O')
@@ -26,6 +26,10 @@ namespace space__shooter_local
                 }
             }
         }
+        public void RemovePart(MeteorPart part)
+        {
+            parts.Remove(part);
+        }
 
         public override void Update(Game game)
         {
@@ -35,6 +39,7 @@ namespace space__shooter_local
                 Y += Speed;
             }
             // pohyb dolů
+
             foreach (var part in parts)
             {
                 if (updateCounter % slowDown == 0)
@@ -43,9 +48,16 @@ namespace space__shooter_local
                 }
                 if (part.CollidesWith(game.Player))
                 {
-                    game.GameOver();
+                    game.Player.Hit(game);
+                    RemoveMeteorPart(part);
                 }
             }
+            /*  
+            if (CollidesWith(game.Player))
+            {
+                game.Player.Hit(game);
+                game.RemoveMeteor(this);
+            }*/
         }
 
         public void RemoveOffScreenParts()
@@ -53,6 +65,10 @@ namespace space__shooter_local
             parts.RemoveAll(p => p.X < 0 || p.X >= Console.WindowWidth || p.Y < 0 || p.Y >= Console.WindowHeight);
         }
 
+        public void RemoveMeteorPart(MeteorPart part)
+        {
+            parts.Remove(part);
+        }
 
         public IEnumerable<MeteorPart> Parts { get { return parts; } }
     }

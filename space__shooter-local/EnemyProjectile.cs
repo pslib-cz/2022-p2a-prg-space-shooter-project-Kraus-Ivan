@@ -18,17 +18,19 @@ namespace space__shooter_local
         public override void Update(Game game)
         {
             updateCounter++;
+            slowDown = slowDown / 2;
             if (updateCounter % slowDown == 0) // pohybuje se pouze při každé páté aktualizaci
             {
-                Y += 2;
+                Y += 1;
             }
             // pohyb dolů
 
-            // pokud se projektil dotkne hráče, tak se hra ukončí
             if (CollidesWith(game.Player))
             {
-                game.GameOver();
+                game.RemoveEnemyProjectile(this);
+                game.Player.Hit(game);
             }
+
             // pokud je projektil mimo obrazovku, odstraní ho
             else if (Y >= Console.WindowHeight)
             {

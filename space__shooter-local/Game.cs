@@ -75,6 +75,7 @@ namespace space_shooter
                 var projectile = Projectiles[i];
                 var hitEnemy = Enemies.FirstOrDefault(e => e.CollidesWith(projectile));
                 var hitMeteor = Meteors.FirstOrDefault(m => m.CollidesWith(projectile));
+                var hitMeteorPart = Meteors.FirstOrDefault(m => m.CollidesWith(projectile));
 
                 if (hitEnemy != null)
                 {
@@ -88,6 +89,7 @@ namespace space_shooter
                     RemoveMeteor(hitMeteor);
                     RemoveProjectile(projectile);
                 }
+
             }
 
             // Odstranit objekty mimo obrazovku
@@ -127,9 +129,9 @@ namespace space_shooter
         public void SpawnMeteor()
         {
             Random rand = new Random();
-            int x = rand.Next(1, Console.WindowWidth - 1);
-            int y = rand.Next(10, Console.WindowHeight - 1);
             int size = rand.Next(1, 4);
+            int y = 0 + size;
+            int x = rand.Next(1, Console.WindowWidth - 1);
             Meteor meteor = new Meteor(x, y, size);
             Meteors.Add(meteor);
         }
@@ -189,7 +191,5 @@ namespace space_shooter
                 }
             }
         }
-
-
     }
 }

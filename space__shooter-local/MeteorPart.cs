@@ -17,6 +17,16 @@ namespace space__shooter_local
 
         public override void Update(Game game)
         {
+            if (CollidesWith(game.Player))
+            {
+                game.Player.Hit(game);
+
+                var parentMeteor = game.Meteors.FirstOrDefault(m => m.Parts.Contains(this));
+                if (parentMeteor != null)
+                {
+                    parentMeteor.RemovePart(this);
+                }
+            }
         }
     }
 }

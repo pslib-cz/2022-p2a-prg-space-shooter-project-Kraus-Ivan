@@ -18,10 +18,9 @@ namespace space_shooter
         public void Render(Game game)
         {
             Console.Clear();
-
             DrawGameObject(game.Player);
 
-            DrawScore(game.Score, game.HighScore);
+            DrawScore(game.Score, game.HighScore, game.Player.lives);
 
             foreach (var enemy in game.Enemies.ToList())
             {
@@ -45,11 +44,12 @@ namespace space_shooter
         /// </summary>
         /// <param name="score">Aktuální skóre</param>
         /// <param name="highScore">Nejvyšší dosažené skóre</param>
-        private void DrawScore(double score, double highScore)
+        private void DrawScore(double score, double highScore, int lives)
         {
             Console.SetCursorPosition(0, 0);
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write($"Score: {score} HighScore: {highScore}");
+            Console.WriteLine($"Lives: {lives}");
             Console.ResetColor();
         }
 
