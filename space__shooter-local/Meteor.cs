@@ -1,75 +1,38 @@
-﻿using space_shooter;
+﻿using space__shooter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace space__shooter_local
+namespace space__shooter
 {
-    internal class Meteor : GameObject
+    internal class Meteor
     {
-        public List<MeteorPart> parts = new List<MeteorPart>();
-        private int updateCounter = 0;
+        public List<MeteorPart> Parts { get; private set; }
 
-        public Meteor(double x, double y, int size) : base(x, y, ConsoleColor.DarkYellow, 'O')
+        public Meteor(List<Position> initialPositions)
         {
-            for (int i = 0; i < size; i++)
-            {
+            Parts = new List<MeteorPart>();
 
-                if (x + i > Console.WindowWidth || x + i < 0 || y + i > Console.WindowHeight || y + i < 0)
-                    return;
-                else
-                {
-                    parts.Add(new MeteorPart(x + i, y));
-                    parts.Add(new MeteorPart(x, y + i));
-                }
+            foreach (var position in initialPositions)
+            {
+                Parts.Add(new MeteorPart(position.X, position.Y));
             }
         }
+
+        public void Move()
+        {
+            foreach (var part in Parts)
+            {
+                part.Move();
+            }
+        }
+
         public void RemovePart(MeteorPart part)
         {
-            parts.Remove(part);
+            Parts.Remove(part);
         }
 
-        public override void Update(Game game)
-        {
-            updateCounter++;
-            if (updateCounter % slowDown == 0) 
-            {
-                Y += Speed;
-            }
-            // pohyb dolů
-
-            foreach (var part in parts)
-            {
-                if (updateCounter % slowDown == 0)
-                {
-                    part.Y += Speed;
-                }
-                if (part.CollidesWith(game.Player))
-                {
-                    game.Player.Hit(game);
-                    RemoveMeteorPart(part);
-                }
-            }
-            /*  
-            if (CollidesWith(game.Player))
-            {
-                game.Player.Hit(game);
-                game.RemoveMeteor(this);
-            }*/
-        }
-
-        public void RemoveOffScreenParts()
-        {
-            parts.RemoveAll(p => p.X < 0 || p.X >= Console.WindowWidth || p.Y < 0 || p.Y >= Console.WindowHeight);
-        }
-
-        public void RemoveMeteorPart(MeteorPart part)
-        {
-            parts.Remove(part);
-        }
-
-        public IEnumerable<MeteorPart> Parts { get { return parts; } }
     }
 }

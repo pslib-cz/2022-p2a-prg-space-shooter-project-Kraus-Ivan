@@ -1,32 +1,29 @@
-﻿using space_shooter;
+﻿using space__shooter_local;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace space__shooter_local
+namespace space__shooter
 {
-    internal class MeteorPart : GameObject
+    internal class MeteorPart : Entity
     {
-        private int updateCounter = 0;
+        private int _moveCounter = 0;
 
-        public MeteorPart(double x, double y) : base(x, y, ConsoleColor.DarkYellow, 'O')
+        public MeteorPart(int x, int y) : base(x, y)
         {
         }
 
-        public override void Update(Game game)
+        public override void Move()
         {
-            if (CollidesWith(game.Player))
-            {
-                game.Player.Hit(game);
+            _moveCounter++;
 
-                var parentMeteor = game.Meteors.FirstOrDefault(m => m.Parts.Contains(this));
-                if (parentMeteor != null)
-                {
-                    parentMeteor.RemovePart(this);
-                }
+            if (_moveCounter % 5 == 0)
+            {
+                Position.Y += 1;
             }
         }
     }
+
 }

@@ -1,61 +1,44 @@
-﻿using space__shooter_local;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using space__shooter_local;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace space_shooter
+namespace space__shooter
 {
-    internal class Player : GameObject
+    internal class Player : Entity
     {
-        public int lives = 3;
-        public override void Update(Game game)
+        public int Lives { get; private set; }
+
+        public Player(int x, int y) : base(x, y)
+        {
+            Lives = 3;
+        }
+
+        public override void Move()
         {
         }
 
-        public void Hit(Game game)
+        public void Move(int dx, int dy)
         {
-            lives -= 1;
-            if (lives <= 0)
-            {
-                game.GameOver();
-            }
+            Position.X += dx;
+            Position.Y += dy;
+
+            if (Position.X < 0) Position.X = 0;
+            if (Position.Y < 0) Position.Y = 0;
+            if (Position.X > Console.WindowWidth - 1) Position.X = Console.WindowWidth - 1;
+            if (Position.Y > Console.WindowHeight - 1) Position.Y = Console.WindowHeight - 1;
         }
 
-        public Player(double x, double y) : base(x, y, ConsoleColor.Green, 'A')
+        public Projectile Shoot()
         {
+            return new Projectile(Position.X, Position.Y - 1, true);
         }
 
-        public void Shoot(Game game)
+        public void TakeDamage()
         {
-            game.Projectiles.Add(new Projectile(X, Y - 1, ConsoleColor.White, '.'));
-        }
-
-        public void MoveLeft()
-        {
-            if(X > 0)
-                X--;
-        }
-
-        public void MoveRight()
-        {
-            if (X < Console.WindowWidth - 1) ;
-                X++;
-        }
-
-        public void MoveUp()
-        {
-            if (Y > 0) 
-                Y--;
-        }
-
-        public void MoveDown()
-        {
-            if(Y < Console.WindowHeight - 1)
-                Y++;
+            Lives--;
         }
     }
 }

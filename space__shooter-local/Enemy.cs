@@ -1,53 +1,51 @@
-﻿using space_shooter;
+﻿using space__shooter;
 using System;
 using System.Collections.Generic;
+using space__shooter_local;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace space__shooter_local
+namespace space__shooter
 {
-    internal class Enemy : GameObject                                                                                               
+    internal class Enemy : Entity
     {
-        int delay = 0;
-        private int updateCounter = 0;
+        private bool _isStopped;
+        private Random _rand;
+        private int _moveCounter = 0;
 
-        public Enemy(double x, double y) : base(x, y, ConsoleColor.Red, 'V')
+        public Enemy(int x, int y) : base(x, y)
         {
+            _rand = new Random();
+            _isStopped = false;
         }
 
-        public void Shoot(Game game)
+        public override void Move()
         {
-            game.Projectiles.Add(new EnemyProjectile(X, Y + 2));
+            if (_isStopped)
+                return;
+
+            _moveCounter++;
+
+            if (_moveCounter % 2 == 0)
+            {
+                Position.Y += 1;
+            }
+
+            if (_rand.NextDouble() < 0.1) // 10% procentní šance na zastavení nepřítele
+                _isStopped = true;
+
+            if (Position.Y > Console.WindowHeight - 1)
+                Position.Y = Console.WindowHeight - 1;
         }
 
-        public override void Update(Game game)
+        public Projectile Shoot()
         {
-            if(delay == 5)
-            {
-                this.Shoot(game);
-            }
+            if (_isStopped && _rand.NextDouble() < 0.01) // 1% procentní šance na střelbu, když je nepřítel zastavený
+                return new Projectile(Position.X, Position.Y + 1, false);
 
-            if (CollidesWith(game.Player))
-            {
-                game.Player.Hit(game);
-                game.RemoveEnemy(this);
-            }
-
-            updateCounter++;
-            if (updateCounter % slowDown == 0) // pohybuje se pouze při každé páté aktualizaci
-            {
-                Y += Speed;
-            }
-            // pohyb dolů
-
-            // pokud se enemy dotkne hráče, tak se hra ukončí
-            if (CollidesWith(game.Player))
-            {
-                game.GameOver();
-            }
-            delay++;
+            return null;
         }
-
     }
 }
+

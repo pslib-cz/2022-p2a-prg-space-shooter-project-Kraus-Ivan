@@ -1,85 +1,56 @@
-﻿using space__shooter_local;
+﻿using space__shooter;
+using space__shooter_local;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace space_shooter
+namespace space__shooter
 {
     internal class Renderer
     {
-        /// <summary>
-        /// Vykreslí objekty na obrazovku
-        /// </summary>
-        /// <param name="game">Daná hra</param>
+        private readonly Dictionary<Type, (ConsoleColor color, char c)> _entityDrawData = new Dictionary<Type, (ConsoleColor color, char c)>
+        {
+            { typeof(Player), (ConsoleColor.Green, 'A') },
+            { typeof(Enemy), (ConsoleColor.Red, 'V') },
+            { typeof(Projectile), (ConsoleColor.White, '.') },
+            { typeof(MeteorPart), (ConsoleColor.Yellow, 'O') },
+        };
+
         public void Render(Game game)
         {
             Console.Clear();
-            DrawGameObject(game.Player);
 
-            DrawScore(game.Score, game.HighScore, game.Player.lives);
+            DrawEntity(game.Player);
+            foreach (var enemy in game.Enemies)
+                DrawEntity(enemy);
+            foreach (var projectile in game.Projectiles)
+                DrawEntity(projectile);
+            foreach (var meteor in game.Meteors)
+                foreach (var part in meteor.Parts)
+                    DrawEntity(part);
 
-            foreach (var enemy in game.Enemies.ToList())
-            {
-                DrawGameObject(enemy);
-            }
-
-            foreach (var projectile in game.Projectiles.ToList())
-            {
-                DrawGameObject(projectile);
-            }
-
-            foreach (var meteor in game.Meteors.ToList())
-            {
-                DrawMeteorParts(meteor.Parts);
-            }
+            Console.SetCursorPosition(0, Console.WindowHeight - 1);
+            Console.Write("Score: {0} High Score: {1} Lives: {2}", game.Score, game.HighScore, game.Player.Lives);
         }
 
-
-        /// <summary>
-        /// Vykreslí skóre na obrazovku
-        /// </summary>
-        /// <param name="score">Aktuální skóre</param>
-        /// <param name="highScore">Nejvyšší dosažené skóre</param>
-        private void DrawScore(double score, double highScore, int lives)
+        private void DrawEntity(Entity entity)
         {
-            Console.SetCursorPosition(0, 0);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($"Score: {score} HighScore: {highScore}");
-            Console.WriteLine($"Lives: {lives}");
-            Console.ResetColor();
+            if (_entityDrawData.TryGetValue(entity.GetType(), out var drawData))
+                Draw(entity.Position, drawData.color, drawData.c);
         }
 
-
-        /// <summary>
-        /// Vykreslí objekt na jeho souřadnice
-        /// </summary>
-        /// <param name="gameObject">Objekt k vykreslení</param>
-        private void DrawGameObject(GameObject gameObject)
+        private void Draw(Position position, ConsoleColor color, char c)
         {
-            if (gameObject.X >= 0 && gameObject.Y >= 0 && gameObject.X < Console.WindowWidth && gameObject.Y < Console.WindowHeight)
+            if (position.X >= 0 && position.X < Console.WindowWidth &&
+                position.Y >= 0 && position.Y < Console.WindowHeight)
             {
-                Console.SetCursorPosition((int)gameObject.X, (int)gameObject.Y);
-                Console.ForegroundColor = gameObject.color;
-                Console.Write(gameObject.Symbol);
+                Console.SetCursorPosition(position.X, position.Y);
+                Console.ForegroundColor = color;
+                Console.Write(c);
                 Console.ResetColor();
             }
         }
-
-        public void DrawMeteorParts(IEnumerable<MeteorPart> parts)
-        {
-            foreach (var part in parts)
-            {
-                if (part.X >= 0 && part.Y >= 0 && part.X < Console.WindowWidth && part.Y < Console.WindowHeight)
-                {
-                    DrawGameObject(part);
-                }
-            }
-        }
-
-
     }
 }

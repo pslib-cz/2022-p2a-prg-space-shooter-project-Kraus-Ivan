@@ -1,79 +1,46 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using System.Threading.Tasks;
-using space_shooter;
+﻿using space__shooter;
 
-class Program
+var game = new Game();
+var renderer = new Renderer();
+var lastTime = DateTime.Now;
+
+// Hlavní herní smyčka
+while (true)
 {
-    static async Task Main()
+    // Ovládání
+    if (Console.KeyAvailable)
     {
-        Console.CursorVisible = false;
-        CancellationTokenSource cts = new CancellationTokenSource();
-        ConcurrentQueue<ConsoleKey> movementKeys = new ConcurrentQueue<ConsoleKey>();
-        ConcurrentQueue<ConsoleKey> shootingKeys = new ConcurrentQueue<ConsoleKey>();
-
-        Game game = new Game();
-        Renderer renderer = new Renderer();
-
-        Task gameLoop = GameLoop(game, renderer, movementKeys, shootingKeys, cts.Token);
-        Task inputLoop = InputLoop(movementKeys, shootingKeys, cts.Token);
-
-        await Task.WhenAny(gameLoop, inputLoop);
-
-        cts.Cancel();
-        await Task.WhenAll(gameLoop, inputLoop);
-    }
-
-    static async Task GameLoop(Game game, Renderer renderer, ConcurrentQueue<ConsoleKey> movementKeys, ConcurrentQueue<ConsoleKey> shootingKeys, CancellationToken token)
-    {
-        while (!token.IsCancellationRequested)
+        var key = Console.ReadKey(true).Key;
+        switch (key)
         {
-            while (movementKeys.TryDequeue(out var key))
-            {
-                if (key == ConsoleKey.W || key == ConsoleKey.UpArrow)
-                    game.Player.MoveUp();
-
-                if (key == ConsoleKey.A || key == ConsoleKey.LeftArrow)
-                    game.Player.MoveLeft();
-
-                if (key == ConsoleKey.S || key == ConsoleKey.DownArrow)
-                    game.Player.MoveDown();
-
-                if (key == ConsoleKey.D || key == ConsoleKey.RightArrow)
-                    game.Player.MoveRight();
-            }
-
-            while (shootingKeys.TryDequeue(out var key))
-            {
-                if (key == ConsoleKey.Spacebar)
-                    game.Player.Shoot(game);
-            }
-
-            game.Update();
-            renderer.Render(game);
-
-            await Task.Delay(100);
+            case ConsoleKey.LeftArrow:
+                game.MovePlayer(-1, 0);
+                break;
+            case ConsoleKey.RightArrow:
+                game.MovePlayer(1, 0);
+                break;
+            case ConsoleKey.UpArrow:
+                game.MovePlayer(0, -1);
+                break;
+            case ConsoleKey.DownArrow:
+                game.MovePlayer(0, 1);
+                break;
+            case ConsoleKey.Spacebar:
+                game.PlayerShoot();
+                break;
         }
     }
 
-    static Task InputLoop(ConcurrentQueue<ConsoleKey> movementKeys, ConcurrentQueue<ConsoleKey> shootingKeys, CancellationToken token)
+    // Aktualizace hry
+    var now = DateTime.Now;
+    if ((now - lastTime).TotalMilliseconds >= game._gameSpeed)
     {
-        return Task.Run(() =>
-        {
-            while (!token.IsCancellationRequested)
-            {
-                if (Console.KeyAvailable)
-                {
-                    var key = Console.ReadKey(true).Key;
-
-                    if (key == ConsoleKey.W || key == ConsoleKey.A || key == ConsoleKey.S || key == ConsoleKey.D || key == ConsoleKey.UpArrow || key == ConsoleKey.LeftArrow || key == ConsoleKey.DownArrow || key == ConsoleKey.RightArrow)
-                        movementKeys.Enqueue(key);
-
-                    if (key == ConsoleKey.Spacebar)
-                        shootingKeys.Enqueue(key);
-                }
-            }
-        });
+        game.Update();
+        game.SpawnEntities();
+        renderer.Render(game);
+        lastTime = now;
     }
+
+    // Čekání
+    Task.Delay(1).Wait();
 }

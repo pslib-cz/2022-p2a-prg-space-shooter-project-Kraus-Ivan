@@ -1,39 +1,28 @@
-﻿using space_shooter;
+﻿using space__shooter_local;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace space__shooter_local
+namespace space__shooter
 {
-    internal class Projectile : GameObject
+    internal class Projectile : Entity
     {
-        public Projectile(double x, double y, ConsoleColor color, char symbol) : base(x, y, color, symbol)
+        public bool IsPlayerProjectile { get; private set; }
+        private int _moveCounter = 0;
+
+        public Projectile(int x, int y, bool isPlayerProjectile) : base(x, y)
         {
+            IsPlayerProjectile = isPlayerProjectile;
         }
 
-
-        public override void Update(Game game)
+        public override void Move()
         {
-            // pohyb dolů
-            Y -= 2;
-
-            if (CollidesWith(game.Player))
-            {
-                game.GameOver();
-            }
-
-            foreach (var meteor in game.Meteors)
-            {
-                var hitPart = meteor.Parts.FirstOrDefault(part => CollidesWith(part));
-                if (hitPart != null)
-                {
-                    meteor.parts.Remove(hitPart);
-                    break;
-                }
-            }
+            if (IsPlayerProjectile)
+                Position.Y -= 1;
+            else if (_moveCounter++ % 2 == 0)
+                Position.Y += 1;
         }
-
     }
 }

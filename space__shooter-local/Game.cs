@@ -1,195 +1,191 @@
-﻿using space__shooter_local;
+﻿using space__shooter;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace space_shooter
+namespace space__shooter
 {
     internal class Game
     {
         public Player Player { get; private set; }
         public List<Enemy> Enemies { get; private set; }
-
         public List<Projectile> Projectiles { get; private set; }
-
-        public List<EnemyProjectile> EnemyProjectiles { get; private set; }
-
         public List<Meteor> Meteors { get; private set; }
-
-        public double Score { get; private set; }
-
-        public double HighScore { get; private set; }
-
-        private int _tickCounter;
+        public int Score { get; private set; }
+        public int HighScore { get; private set; } // High score
+        private Random _rand;
+        public int _gameSpeed = 60;
+        private DateTime _lastTime;
+        private int _scoreCounter = 0;
 
         public Game()
         {
-            Reset();
-            LoadHighScore();
-            Meteors = new List<Meteor>();
-        }
-
-        public void Update()
-        {
-            IncreaseScore(0.5);
-
-            foreach (var projectile in Projectiles.ToList())
-            {
-                projectile.Update(this);
-            }
-
-            foreach (var enemyProjectile in EnemyProjectiles.ToList())
-            {
-                enemyProjectile.Update(this);
-            }
-
-            foreach (var enemy in Enemies.ToList())
-            {
-                enemy.Update(this);
-            }
-
-            foreach (var meteor in Meteors.ToList())
-            {
-                meteor.Update(this);
-            }
-
-            if (_tickCounter % 20 == 0)
-            {
-                SpawnEnemy();
-                SpawnMeteor();
-            }
-
-            foreach (var meteor in Meteors.ToList())
-            {
-                meteor.Update(this);
-                meteor.RemoveOffScreenParts();
-            }
-
-            // Zkontrolovat kolizi projektilů s nepřáteli a meteory a aktualizovat skóre a odstranit zasažené objekty
-            for (int i = Projectiles.Count - 1; i >= 0; i--)
-            {
-                var projectile = Projectiles[i];
-                var hitEnemy = Enemies.FirstOrDefault(e => e.CollidesWith(projectile));
-                var hitMeteor = Meteors.FirstOrDefault(m => m.CollidesWith(projectile));
-                var hitMeteorPart = Meteors.FirstOrDefault(m => m.CollidesWith(projectile));
-
-                if (hitEnemy != null)
-                {
-                    IncreaseScore(100);
-                    RemoveEnemy(hitEnemy);
-                    RemoveProjectile(projectile);
-                }
-                else if (hitMeteor != null)
-                {
-                    IncreaseScore(25);
-                    RemoveMeteor(hitMeteor);
-                    RemoveProjectile(projectile);
-                }
-
-            }
-
-            // Odstranit objekty mimo obrazovku
-            EnemyProjectiles.RemoveAll(p => p.Y >= Console.WindowHeight);
-            Projectiles.RemoveAll(p => p.Y < 0 || p.Y >= Console.WindowHeight);
-            Enemies.RemoveAll(e => e.Y >= Console.WindowHeight);
-            Meteors.RemoveAll(m => m.Y >= Console.WindowHeight);
-
-            _tickCounter++;
-            Player.Update(this);
-        }
-
-
-        public void Reset()
-        {
-            Player = new Player(Console.WindowWidth / 2, Console.WindowHeight - 1);
+            Player = new Player(Console.WindowWidth / 2, Console.WindowHeight / 2);
             Enemies = new List<Enemy>();
             Projectiles = new List<Projectile>();
-            EnemyProjectiles = new List<EnemyProjectile>();
             Meteors = new List<Meteor>();
             Score = 0;
-            _tickCounter = 0;
-            InitializeGameObjects();
-        }
-
-        private void InitializeGameObjects()
-        {
-            SpawnEnemy();
-            SpawnMeteor();
+            HighScore = LoadHighScore(); // Load high score from file
+            _rand = new Random();
+            _lastTime = DateTime.Now;
         }
 
         public void SpawnEnemy()
         {
-            int x = new Random().Next(0, Console.WindowWidth);
-            Enemies.Add(new Enemy(x, 0));
+            Enemies.Add(new Enemy(_rand.Next(Console.WindowWidth), 0));
         }
+
         public void SpawnMeteor()
         {
-            Random rand = new Random();
-            int size = rand.Next(1, 4);
-            int y = 0 + size;
-            int x = rand.Next(1, Console.WindowWidth - 1);
-            Meteor meteor = new Meteor(x, y, size);
-            Meteors.Add(meteor);
-        }
+            List<Position> positions = new List<Position>();
+            int numParts = _rand.Next(1, 6);
+            int initialX = _rand.Next(Console.WindowWidth);
+            int initialY = _rand.Next(Console.WindowHeight - 5) + 1;
 
-        public void RemoveEnemy(Enemy enemy)
-        {
-            Enemies.Remove(enemy);
-        }
-        public void RemoveMeteor(Meteor meteor)
-        {
-            Meteors.Remove(meteor);
-        }
-
-        public void IncreaseScore(double value)
-        {
-            Score += value;
-            if (Score > HighScore)
+            for (int i = 0; i < numParts; i++)
             {
-                HighScore = Score;
-                SaveHighScore();
+                int offsetX = _rand.Next(-1, 2);
+                int offsetY = _rand.Next(-1, 2);
+                positions.Add(new Position(initialX + offsetX, initialY + offsetY));
+            }
+
+            Meteors.Add(new Meteor(positions));
+        }
+
+        public void MovePlayer(int dx, int dy)
+        {
+            Player.Move(dx, dy);
+        }
+
+        public void PlayerShoot()
+        {
+            Projectiles.Add(Player.Shoot());
+        }
+
+        public void CheckCollisions()
+        {
+            foreach (var projectile in Projectiles)
+            {
+                if (!projectile.IsPlayerProjectile && projectile.Position.Equals(Player.Position))
+                {
+                    Player.TakeDamage();
+                    Projectiles.Remove(projectile);
+                    return;
+                }
+            }
+
+            foreach (var projectile in Projectiles)
+            {
+                if (projectile.IsPlayerProjectile)
+                {
+                    foreach (var enemy in Enemies)
+                    {
+                        if (projectile.Position.Equals(enemy.Position))
+                        {
+                            Enemies.Remove(enemy);
+                            Projectiles.Remove(projectile);
+                            Score += 75;
+                            return;
+                        }
+                    }
+
+                    foreach (var meteor in Meteors)
+                    {
+                        foreach (var part in meteor.Parts)
+                        {
+                            if (projectile.Position.Equals(part.Position))
+                            {
+                                meteor.RemovePart(part);
+                                Projectiles.Remove(projectile);
+                                Score += 50;
+                                return;
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        public void SaveHighScore()
+        public void SpawnEntities()
         {
-            File.WriteAllText("highscore.txt", HighScore.ToString());
+            if (_rand.NextDouble() < 0.01)
+            {
+                SpawnEnemy();
+            }
+
+            if (_rand.NextDouble() < 0.02)
+            {
+                SpawnMeteor();
+            }
         }
 
-        public void RemoveProjectile(Projectile projectile)
+        public void RemoveOutOfBoundsEntities()
         {
-            Projectiles.Remove(projectile);
+            Enemies.RemoveAll(e => e.Position.Y >= Console.WindowHeight);
+            Projectiles.RemoveAll(p => p.Position.Y < 0 || p.Position.Y >= Console.WindowHeight);
+            foreach (var meteor in Meteors)
+            {
+                meteor.Parts.RemoveAll(part => part.Position.Y >= Console.WindowHeight);
+            }
+            Meteors.RemoveAll(m => m.Parts.Count == 0);
         }
 
-        public void RemoveEnemyProjectile(EnemyProjectile projectile)
+        public void Update()
         {
-            EnemyProjectiles.Remove(projectile);
+            foreach (var enemy in Enemies) enemy.Move();
+            foreach (var projectile in Projectiles) projectile.Move();
+            foreach (var meteor in Meteors) meteor.Move();
+            _scoreCounter++;
+            if (_scoreCounter % 10 == 0)
+            {
+                Score++;
+            }
+
+            foreach (var enemy in Enemies)
+            {
+                var projectile = enemy.Shoot();
+                if (projectile != null)
+                {
+                    Projectiles.Add(projectile);
+                }
+            }
+
+            CheckCollisions();
+
+            RemoveOutOfBoundsEntities();
+
+            var now = DateTime.Now;
+            if ((now - _lastTime).TotalSeconds >= 5)
+            {
+                _gameSpeed -= 1;
+                if (_gameSpeed < 0) _gameSpeed = 0;
+                _lastTime = now;
+            }
         }
 
-        public void GameOver() 
+        public void SaveHighScore() // Save high score to file
         {
-            Console.Clear();
-            Console.WriteLine("Game Over");
-            Console.WriteLine("Score: " + Score);
-            Console.WriteLine("High Score: " + HighScore);
-            Environment.Exit(0);
+            using (var writer = new StreamWriter("highscore.txt"))
+            {
+                writer.Write(HighScore);
+            }
         }
 
-        
-        public void LoadHighScore()
+        public int LoadHighScore() // Load high score from file
         {
             if (File.Exists("highscore.txt"))
             {
-                string highScoreText = File.ReadAllText("highscore.txt");
-                if(double.TryParse(highScoreText, out double loadedHighScore))
+                using (var reader = new StreamReader("highscore.txt"))
                 {
-                    HighScore = loadedHighScore;
+                    if (int.TryParse(reader.ReadToEnd(), out int highScore))
+                    {
+                        return highScore;
+                    }
                 }
             }
+            return 0;
         }
     }
 }
