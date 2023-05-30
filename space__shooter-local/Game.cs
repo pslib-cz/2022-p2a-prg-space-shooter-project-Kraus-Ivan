@@ -219,7 +219,7 @@ namespace space__shooter
             RemoveOutOfBoundsEntities();
 
             var now = DateTime.Now;
-            if ((now - _lastTime).TotalSeconds >= 1)
+            if ((now - _lastTime).TotalSeconds >= 5)
             {
                 GameSpeed -= 1;
                 if (GameSpeed < 0) GameSpeed = 0;
