@@ -9,11 +9,14 @@ namespace space__shooter
 {
     internal class Projectile : Entity
     {
+        /// <summary>
+        /// Třída představující projektil
+        /// </summary>
         public bool IsPlayerProjectile { get; private set; }
         private int _moveCounter = 0;
 
         public Projectile(int x, int y, bool isPlayerProjectile) : base(x, y)
-        {
+        { 
             IsPlayerProjectile = isPlayerProjectile;
         }
 

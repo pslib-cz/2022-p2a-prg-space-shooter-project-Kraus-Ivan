@@ -15,7 +15,9 @@ namespace space__shooter_local
         {
             Position = new Position(x, y);
         }
-
+        /// <summary>
+        /// Abstraktní metoda pro pohyb entity
+        /// </summary>
         public abstract void Move();
 
     }

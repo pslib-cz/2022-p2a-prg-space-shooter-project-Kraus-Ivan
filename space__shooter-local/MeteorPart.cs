@@ -9,8 +9,10 @@ namespace space__shooter
 {
     internal class MeteorPart : Entity
     {
+        /// <summary>
+        /// Třída představující jednotlivou část meteoru
+        /// </summary>
         private int _moveCounter = 0;
-
         public MeteorPart(int x, int y) : base(x, y)
         {
         }

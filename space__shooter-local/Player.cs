@@ -9,6 +9,9 @@ namespace space__shooter
 {
     internal class Player : Entity
     {
+        /// <summary>
+        /// Třída představující hráče
+        /// </summary>
         public int Lives { get; private set; }
 
         public Player(int x, int y) : base(x, y)

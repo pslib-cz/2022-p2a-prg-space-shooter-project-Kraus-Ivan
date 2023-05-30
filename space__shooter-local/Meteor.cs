@@ -9,7 +9,10 @@ namespace space__shooter
 {
     internal class Meteor
     {
-        public List<MeteorPart> Parts { get; private set; }
+        /// <summary>
+        /// Třída představující meteor
+        /// </summary>
+        public List<MeteorPart> Parts { get; private set; } // Meteor obsahuje několik částí
 
         public Meteor(List<Position> initialPositions)
         {
@@ -29,6 +32,10 @@ namespace space__shooter
             }
         }
 
+        /// <summary>
+        /// Odstraní část meteoru
+        /// </summary>
+        /// <param name="part">Část meteoru</param>
         public void RemovePart(MeteorPart part)
         {
             Parts.Remove(part);

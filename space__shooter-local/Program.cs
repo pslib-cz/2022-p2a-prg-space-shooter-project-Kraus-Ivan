@@ -7,7 +7,7 @@ var lastTime = DateTime.Now;
 // Hlavní herní smyčka
 while (true)
 {
-    // Ovládání
+    // Ovládání hráče
     if (Console.KeyAvailable)
     {
         var key = Console.ReadKey(true).Key;
@@ -31,9 +31,25 @@ while (true)
         }
     }
 
+    // Kontrola smrti hráče
+    if (game.IsPlayerDead())
+    {
+        game.SaveHighScore();
+        renderer.RenderGameOver(game);
+        var key = Console.ReadKey(true).Key;
+        switch (key)
+        {
+            case ConsoleKey.R:
+                game = new Game();
+                break;
+            case ConsoleKey.Q:
+                return;
+        }
+    }
+
     // Aktualizace hry
     var now = DateTime.Now;
-    if ((now - lastTime).TotalMilliseconds >= game._gameSpeed)
+    if ((now - lastTime).TotalMilliseconds >= game.GameSpeed)
     {
         game.Update();
         game.SpawnEntities();
@@ -41,6 +57,5 @@ while (true)
         lastTime = now;
     }
 
-    // Čekání
     Task.Delay(1).Wait();
 }

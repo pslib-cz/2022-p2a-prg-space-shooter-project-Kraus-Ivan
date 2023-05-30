@@ -8,6 +8,9 @@ namespace space__shooter
 {
     internal class Position
     {
+        /// <summary>
+        /// Třídá zajišťující uchování pozice entit
+        /// </summary>
         public int X { get; set; }
         public int Y { get; set; }
 
