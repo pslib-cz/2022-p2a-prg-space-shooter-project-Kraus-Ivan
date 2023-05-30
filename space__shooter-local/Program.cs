@@ -35,6 +35,7 @@ while (true)
     if (game.IsPlayerDead())
     {
         game.SaveHighScore();
+        game.LoadHighScore();
         renderer.RenderGameOver(game);
         var key = Console.ReadKey(true).Key;
         switch (key)

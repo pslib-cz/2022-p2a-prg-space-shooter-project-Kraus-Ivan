@@ -16,8 +16,8 @@ namespace space__shooter
         public List<Enemy> Enemies { get; private set; }
         public List<Projectile> Projectiles { get; private set; }
         public List<Meteor> Meteors { get; private set; }
-        public int Score { get; private set; }
-        public int HighScore { get; private set; } 
+        public int Score { get; private set; } = 0;
+        public int HighScore { get; private set; } = 0;
         private Random _rand;
         public int GameSpeed { get; private set; } = 60;
         private DateTime _lastTime;
@@ -30,7 +30,7 @@ namespace space__shooter
             Projectiles = new List<Projectile>();
             Meteors = new List<Meteor>();
             Score = 0;
-            HighScore = LoadHighScore(); 
+            LoadHighScore();
             _rand = new Random();
             _lastTime = DateTime.Now;
         }
@@ -219,7 +219,7 @@ namespace space__shooter
             RemoveOutOfBoundsEntities();
 
             var now = DateTime.Now;
-            if ((now - _lastTime).TotalSeconds >= 3)
+            if ((now - _lastTime).TotalSeconds >= 1)
             {
                 GameSpeed -= 1;
                 if (GameSpeed < 0) GameSpeed = 0;
@@ -227,35 +227,28 @@ namespace space__shooter
             }
         }
 
-        /// <summary>
-        /// Ukládá nejvyšší skóre
-        /// </summary>
-        public void SaveHighScore() 
+        private const string HighScoreFilePath = "highscore.txt";
+
+        // Zapisuje skóre, pokud je větší než highscore
+        public void SaveHighScore()
         {
-            using (var writer = new StreamWriter("highscore.txt"))
+            if(Score > HighScore)
             {
-                if(Score > HighScore)
-                    writer.Write(HighScore);
+                File.WriteAllText(HighScoreFilePath, Score.ToString());
             }
         }
 
-        /// <summary>
-        /// Načte nejvyšší skóre
-        /// </summary>
-        /// <returns>Vrací nejvyšší skóre</returns>
-        public int LoadHighScore() 
+        // Načítá highscore
+        public void LoadHighScore()
         {
-            if (File.Exists("highscore.txt"))
+            if (File.Exists(HighScoreFilePath))
             {
-                using (var reader = new StreamReader("highscore.txt"))
+                string highScoreText = File.ReadAllText(HighScoreFilePath);
+                if (int.TryParse(highScoreText, out int loadedHighScore))
                 {
-                    if (int.TryParse(reader.ReadToEnd(), out int highScore))
-                    {
-                        return highScore;
-                    }
+                    HighScore = loadedHighScore;
                 }
             }
-            return 0;
         }
     }
 }
