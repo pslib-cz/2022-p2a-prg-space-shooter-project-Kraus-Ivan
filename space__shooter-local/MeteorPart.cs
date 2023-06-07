@@ -13,15 +13,19 @@ namespace space__shooter
         /// Třída představující jednotlivou část meteoru
         /// </summary>
         private int _moveCounter = 0;
+        Random rnd = new Random();
+        private int _moveStep = 0;
+
         public MeteorPart(int x, int y) : base(x, y)
         {
+            _moveStep = rnd.Next(2, 10);
         }
 
         public override void Move()
         {
             _moveCounter++;
 
-            if (_moveCounter % 5 == 0)
+            if (_moveCounter % _moveStep == 0)
             {
                 Position.Y += 1;
             }

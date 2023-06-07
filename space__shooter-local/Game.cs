@@ -19,7 +19,7 @@ namespace space__shooter
         public int Score { get; private set; } = 0;
         public int HighScore { get; private set; } = 0;
         private Random _rand;
-        public int GameSpeed { get; private set; } = 60;
+        public int GameSpeed { get; private set; } = 50;
         private DateTime _lastTime;
         private int _scoreCounter = 0;
 
